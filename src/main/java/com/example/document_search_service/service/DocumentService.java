@@ -4,6 +4,8 @@ import com.example.document_search_service.model.Document;
 import com.example.document_search_service.repository.DocumentRepository;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,6 +17,8 @@ import java.util.UUID;
 
 @Service
 public class DocumentService {
+    private static final Logger logger = LoggerFactory.getLogger(DocumentService.class);
+
     private final DocumentRepository documentRepository;
 
     public DocumentService(DocumentRepository documentRepository) {
@@ -22,18 +26,23 @@ public class DocumentService {
     }
 
     public Document indexDocument(MultipartFile file) throws IOException {
-        String content = extractTextFromPDF(file);
-
-        Document document = new Document();
-        document.setId(UUID.randomUUID().toString());
-        document.setFilename(file.getOriginalFilename());
-        document.setUploadTimestamp(LocalDateTime.now(ZoneOffset.UTC));
-        document.setContent(content);
-
-        return documentRepository.save(document);
+        logger.info("Indexing document: {}", file.getOriginalFilename());
+        try {
+            String content = extractTextFromPDF(file);
+            Document document = new Document();
+            document.setId(UUID.randomUUID().toString());
+            document.setFilename(file.getOriginalFilename());
+            document.setUploadTimestamp(LocalDateTime.now(ZoneOffset.UTC));
+            document.setContent(content);
+            return documentRepository.save(document);
+        } catch (IOException e) {
+            logger.error("Failed to index document: {}", file.getOriginalFilename(), e);
+            throw e;
+        }
     }
 
     public List<Document> searchDocuments(String query) {
+        logger.info("Searching documents with query: {}", query);
         return documentRepository.findByContentContaining(query);
     }
 
@@ -42,7 +51,7 @@ public class DocumentService {
             PDFTextStripper pdfStripper = new PDFTextStripper();
             return pdfStripper.getText(document);
         } catch (IOException e) {
-            // Log the exception or handle it appropriately
+            logger.error("Error while extracting text from pdf : {}", e.getMessage());
             throw e;
         }
     }
