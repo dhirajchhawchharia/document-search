@@ -55,4 +55,9 @@ public class DocumentService {
             throw e;
         }
     }
+
+    public void deleteAllDocuments() {
+        logger.info("Deleting all documents");
+        documentRepository.deleteAll();
+    }
 }
