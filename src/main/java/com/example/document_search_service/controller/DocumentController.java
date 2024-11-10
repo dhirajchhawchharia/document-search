@@ -2,6 +2,7 @@ package com.example.document_search_service.controller;
 
 import com.example.document_search_service.model.Document;
 import com.example.document_search_service.service.DocumentService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,14 +20,24 @@ public class DocumentController {
     }
 
     @PostMapping("/documents/upload")
-    public ResponseEntity<Document> uploadDocument(@RequestParam("file") MultipartFile file) throws IOException {
-        Document savedDocument = documentService.indexDocument(file);
-        return ResponseEntity.ok(savedDocument);
+    public ResponseEntity<?> uploadDocument(@RequestParam("file") MultipartFile file) {
+        try {
+            Document savedDocument = documentService.indexDocument(file);
+            return ResponseEntity.ok(savedDocument);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to upload and index the document.");
+        }
     }
 
     @GetMapping("/documents/search")
-    public ResponseEntity<List<Document>> searchDocuments(@RequestParam("query") String query) {
-        List<Document> results = documentService.searchDocuments(query);
-        return ResponseEntity.ok(results);
+    public ResponseEntity<?> searchDocuments(@RequestParam("query") String query) {
+        try {
+            List<Document> results = documentService.searchDocuments(query);
+            return ResponseEntity.ok(results);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to search documents.");
+        }
     }
 }

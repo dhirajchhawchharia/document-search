@@ -25,9 +25,9 @@ public class DocumentService {
         String content = extractTextFromPDF(file);
 
         Document document = new Document();
-        document.setId(UUID.randomUUID().toString()); // Generate a unique ID
+        document.setId(UUID.randomUUID().toString());
         document.setFilename(file.getOriginalFilename());
-        document.setUploadTimestamp(LocalDateTime.now(ZoneOffset.UTC)); // Use UTC time
+        document.setUploadTimestamp(LocalDateTime.now(ZoneOffset.UTC));
         document.setContent(content);
 
         return documentRepository.save(document);
@@ -41,6 +41,9 @@ public class DocumentService {
         try (PDDocument document = PDDocument.load(file.getInputStream())) {
             PDFTextStripper pdfStripper = new PDFTextStripper();
             return pdfStripper.getText(document);
+        } catch (IOException e) {
+            // Log the exception or handle it appropriately
+            throw e;
         }
     }
 }
