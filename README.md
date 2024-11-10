@@ -1,7 +1,8 @@
 Steps to setup and start the service:
 1. Start docker on local machine
-2. cd into the repository root folder
-3. Run `docker-compose up --build` and wait for the service to start up. It will internally start elastic search as well
+2. Install java17 in your system
+3. cd into the repository root folder
+4. Run `docker-compose up --build` and wait for the service to start up. It will internally start elastic search as well
 
 Steps to interact with the service:
 1. For uploading a pdf:
